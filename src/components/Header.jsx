@@ -1,22 +1,28 @@
 import Image from 'next/image'
 import { MenuIcon, SearchIcon, ShoppingCartIcon } from '@heroicons/react/outline'
-import styled from 'styled-components/'
-
-const TopNav = styled.div``
-const BottomNav = styled.div``
+import { signIn, signOut, useSession } from 'next-auth/client'
+import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
+import { selectItems } from '../slices/basketSlice'
 
 export default function Header() {
+  const [session] = useSession()
+  const router = useRouter()
+  const item = useSelector(selectItems)
+
   return (
     <header>
       {/* Top nav */}
-      <TopNav className="flex item-center bg-amazon_blue-light p-1 flex-grow py-2">
-        <div className="mt-2 flex items-center flex-grow sm:flex-grow-0">
+      <div className="flex item-center bg-amazon_blue-light p-1 flex-grow py-2">
+        <div
+          onClick={() => router.push('/')}
+          className="mt-2 flex items-center flex-grow sm:flex-grow-0 cursor-pointer"
+        >
           <Image
             src="https://links.papareact.com/f90"
             width={150}
             height={40}
             objectFit="contain"
-            className="cursor-pointer "
           />
         </div>
 
@@ -31,28 +37,31 @@ export default function Header() {
 
         {/* Right */}
         <div className="text-white flex items-start text-xs space-x-6 mx-6 whitespace-nowrap">
-          <div className="link">
-            <p>Hello Shirshak</p>
+          <div onClick={!session ? signIn : signOut} className="link cursor-pointer">
+            <p className="hover:underline">{session ? `Hello, ${session.user.name}` : 'Sign In'}</p>
             <p className="font-extrabold md:text-sm">Account & Lists</p>
           </div>
 
-          <div className="link">
+          <div className="link cursor-pointer">
             <p>Returns</p>
             <p className="font-extrabold md:text-sm">Orders</p>
           </div>
 
-          <div className="link relative flex items-center ">
+          <div
+            onClick={() => router.push('/checkout')}
+            className="link relative flex items-center cursor-pointer "
+          >
             <span className="absolute top-0 right-0 sm:right-10 h-4 w-4 text-center bg-yellow-400 rounded-full text-black font-bold ">
-              0
+              {item.length}
             </span>
             <ShoppingCartIcon className="h-10" />
             <p className="font-extrabold md:text-sm hidden sm:block">Basket</p>
           </div>
         </div>
-      </TopNav>
+      </div>
 
       {/* Bottom nav */}
-      <BottomNav className="flex item-center space-x-3 p-2 pl-6 bg-amazon_blue-light text-white">
+      <div className="flex item-center space-x-3 p-2 pl-6 bg-amazon_blue-light text-white">
         <p className="link flex items-center">
           <MenuIcon className="h-6 mr-1" />
           All
@@ -66,7 +75,7 @@ export default function Header() {
         <p className="link hidden lg:inline-flex">Buy Again</p>
         <p className="link hidden lg:inline-flex">Shopper Toolkit</p>
         <p className="link hidden lg:inline-flex">Health & Personal Care</p>
-      </BottomNav>
+      </div>
     </header>
   )
 }
